@@ -1,0 +1,144 @@
+<launch> 
+<!--
+  <group ns="tb9">
+    <param name="tf_prefix" value="tb9" />
+    <param name="amcl/initial_pose_x" value="0" />
+    <param name="amcl/initial_pose_y" value="0" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="0" />  
+	  <arg name="init_pose_y" value="0" />
+	  <arg name="init_pose_yaw" value="-1.570796" />
+      <arg name="robot_name" value="tb9" />
+    </include>
+	<node pkg="huy_navi" type="print_position" name="print_position" args="tb9" output="screen"/> 
+  </group>
+-->
+
+  <group ns="tb0">
+    <param name="tf_prefix" value="tb0" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >
+	  <arg name="init_pose_x" value="5" />  
+	  <arg name="init_pose_y" value="-0.25" />
+	  <arg name="init_pose_yaw" value="3.14159267" />
+      <arg name="robot_name" value="tb0" />
+    </include>
+	<node pkg="huy_navi" type="move_communicate_with_im" name="move_communicate_with_im" args="0" output="screen"/> 
+  </group>
+
+  <group ns="tb1">
+    <param name="tf_prefix" value="tb1" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="0.25" />  
+	  <arg name="init_pose_y" value="5" />
+	  <arg name="init_pose_yaw" value="-1.570796" />
+      <arg name="robot_name" value="tb1" />
+    </include>
+	<node pkg="huy_navi" type="move_communicate_with_im" name="move_communicate_with_im" args="1" output="screen"/> 
+  </group>
+
+  <group ns="tb2">
+    <param name="tf_prefix" value="tb2" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="-5" />  
+	  <arg name="init_pose_y" value="0.25" />
+	  <arg name="init_pose_yaw" value="0" />
+      <arg name="robot_name" value="tb2" />
+    </include>
+	<node pkg="huy_navi" type="move_communicate_with_im" name="move_communicate_with_im" args="2" output="screen"/> 
+  </group>
+
+  <group ns="tb3">
+    <param name="tf_prefix" value="tb3" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="-0.25" />  
+	  <arg name="init_pose_y" value="-5" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb3" />
+    </include>
+	<node pkg="huy_navi" type="move_communicate_with_im" name="move_communicate_with_im" args="3" output="screen"/> 
+  </group>
+<!--
+-->
+<!-- This here wont work because the map I made does not exist for the robots
+  <group ns="tb4">
+    <param name="tf_prefix" value="tb4" />
+    <param name="amcl/initial_pose_x" value="-1" />
+    <param name="amcl/initial_pose_y" value="-5" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="-1" />  
+	  <arg name="init_pose_y" value="-5" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb4" />
+    </include>
+  </group>
+
+  <group ns="tb5">
+    <param name="tf_prefix" value="tb4" />
+    <param name="amcl/initial_pose_x" value="1.5" />
+    <param name="amcl/initial_pose_y" value="-5" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="1.5" />  
+	  <arg name="init_pose_y" value="-5" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb5" />
+    </include>
+  </group>
+-->
+</launch>
+
+
+<!--
+
+
+  <group ns="tb0">
+    <param name="tf_prefix" value="tb0" />
+    <param name="amcl/initial_pose_x" value="5" />
+    <param name="amcl/initial_pose_y" value="-0.5" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >
+	  <arg name="init_pose_x" value="5" />  
+	  <arg name="init_pose_y" value="-0.5" />
+	  <arg name="init_pose_yaw" value="3.14159267" />
+      <arg name="robot_name" value="tb0" />
+    </include>
+  </group>
+
+  <group ns="tb1">
+    <param name="tf_prefix" value="tb1" />
+    <param name="amcl/initial_pose_x" value="0.5" />
+    <param name="amcl/initial_pose_y" value="5" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="0.5" />  
+	  <arg name="init_pose_y" value="5" />
+	  <arg name="init_pose_yaw" value="-1.570796" />
+      <arg name="robot_name" value="tb1" />
+    </include>
+  </group>
+
+  <group ns="tb2">
+    <param name="tf_prefix" value="tb2" />
+    <param name="amcl/initial_pose_x" value="-5" />
+    <param name="amcl/initial_pose_y" value="0.5" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="-5" />  
+	  <arg name="init_pose_y" value="0.5" />
+	  <arg name="init_pose_yaw" value="0" />
+      <arg name="robot_name" value="tb2" />
+    </include>
+  </group>
+
+  <group ns="tb3">
+    <param name="tf_prefix" value="tb3" />
+    <param name="amcl/initial_pose_x" value="-0.5" />
+    <param name="amcl/initial_pose_y" value="-5" />
+    <include file="$(find huy_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="-0.5" />  
+	  <arg name="init_pose_y" value="-5" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb3" />
+    </include>
+  </group>
+
+
+
+
+-->

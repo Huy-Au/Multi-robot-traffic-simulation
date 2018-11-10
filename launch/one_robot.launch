@@ -1,0 +1,19 @@
+<launch>
+    <arg name="robot_name"/>
+	<arg name="init_pose_x"/>
+	<arg name="init_pose_y"/>
+	<arg name="init_pose_yaw"/>
+	
+    
+	<param name="robot_description" command="$(find xacro)/xacro --inorder $(find inter_navi)/turtlebot3_description/urdf/turtlebot3_burger.urdf.xacro" />
+    <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-x $(arg init_pose_x) -y $(arg init_pose_y) -z 0 -Y $(arg init_pose_yaw) -urdf -param robot_description -model $(arg robot_name)" output="screen"/>
+
+    <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher"/>
+    <node pkg="robot_state_publisher" type="robot_state_publisher" 
+          name="robot_state_publisher" output="screen"/>       
+
+
+   <node pkg="tf" type="static_transform_publisher" name="link_broadcaster" args="0 0 0 0 0 0 /map $(arg robot_name)/odom 100" />
+	<!-- This maps the static map to the robots odom, last number is period of broadcast 100ms = 10Hz, finding positions of robots using this here is being an issue -->
+</launch>
+

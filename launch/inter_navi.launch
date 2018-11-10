@@ -1,0 +1,12 @@
+<launch>
+	<master auto="start" />
+	<param name="/use_sim_time" value="true"/>
+
+	<include file="$(find inter_navi)/launch/intersection_world.launch"/>
+	<include file="$(find inter_navi)/launch/robots.launch"/>
+<!--doesnt work because its calling before it is ready	<include file="$(find inter_navi)/launch/robots_auto_move.launch"/> -->
+	<node pkg="map_server" type="map_server" name="map_server" args="$(find inter_navi)/maps/intersection.yaml" respawn="false" >
+	    <param name="frame_id" value="/map" />
+	</node>	
+
+</launch>
