@@ -70,11 +70,11 @@ class RandomController:
 			print("Error occured, should not reach here")
 
 if __name__ == "__main__":
-	# Controller = RandomController(int(sys.argv[1]))
-	# while Controller.num_robots_remain() > 0:
-	# 	robot_signal, random_delay = randint(0, 3), randint(0, 2)
-	# 	Controller.move_robot(robot_signal)
-	# 	time.sleep(random_delay)
 	Controller = RandomController(int(sys.argv[1]))
-	Controller.move_robot(1)
-	Controller.move_robot(3)
+	while Controller.num_robots_remain() > 0:
+		robot_signal, random_delay = randint(0, 3), randint(0, 6)
+		Controller.move_robot(robot_signal)
+		time.sleep(random_delay)
+	# Controller = RandomController(int(sys.argv[1]))
+	# Controller.move_robot(1)
+	# Controller.move_robot(3)

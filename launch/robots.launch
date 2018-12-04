@@ -2,7 +2,7 @@
   <group ns="tb0">
     <param name="tf_prefix" value="tb0" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >
-	  <arg name="init_pose_x" value="5" />  
+	  <arg name="init_pose_x" value="11" />  
 	  <arg name="init_pose_y" value="-0.25" />
 	  <arg name="init_pose_yaw" value="3.14159267" />
       <arg name="robot_name" value="tb0" />
@@ -13,7 +13,7 @@
     <param name="tf_prefix" value="tb1" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >       
 	  <arg name="init_pose_x" value="0.25" />  
-	  <arg name="init_pose_y" value="5" />
+	  <arg name="init_pose_y" value="11" />
 	  <arg name="init_pose_yaw" value="-1.570796" />
       <arg name="robot_name" value="tb1" />
     </include>
@@ -22,7 +22,7 @@
   <group ns="tb2">
     <param name="tf_prefix" value="tb2" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >       
-	  <arg name="init_pose_x" value="-5" />  
+	  <arg name="init_pose_x" value="-11" />  
 	  <arg name="init_pose_y" value="0.25" />
 	  <arg name="init_pose_yaw" value="0" />
       <arg name="robot_name" value="tb2" />
@@ -33,17 +33,17 @@
     <param name="tf_prefix" value="tb3" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >      
 	  <arg name="init_pose_x" value="-0.25" />  
-	  <arg name="init_pose_y" value="-5" />
+	  <arg name="init_pose_y" value="-11" />
 	  <arg name="init_pose_yaw" value="1.570796" />
       <arg name="robot_name" value="tb3" />
     </include>
   </group>
 
-<!--
+
   <group ns="tb4">
     <param name="tf_prefix" value="tb4" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >
-	  <arg name="init_pose_x" value="6" />  
+	  <arg name="init_pose_x" value="12" />  
 	  <arg name="init_pose_y" value="-0.25" />
 	  <arg name="init_pose_yaw" value="3.14159267" />
       <arg name="robot_name" value="tb4" />
@@ -54,7 +54,7 @@
     <param name="tf_prefix" value="tb5" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >       
 	  <arg name="init_pose_x" value="0.25" />  
-	  <arg name="init_pose_y" value="6" />
+	  <arg name="init_pose_y" value="12" />
 	  <arg name="init_pose_yaw" value="-1.570796" />
       <arg name="robot_name" value="tb5" />
     </include>
@@ -63,7 +63,7 @@
   <group ns="tb6">
     <param name="tf_prefix" value="tb6" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >       
-	  <arg name="init_pose_x" value="-6" />  
+	  <arg name="init_pose_x" value="-12" />  
 	  <arg name="init_pose_y" value="0.25" />
 	  <arg name="init_pose_yaw" value="0" />
       <arg name="robot_name" value="tb6" />
@@ -74,7 +74,7 @@
     <param name="tf_prefix" value="tb7" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >      
 	  <arg name="init_pose_x" value="-0.25" />  
-	  <arg name="init_pose_y" value="-6" />
+	  <arg name="init_pose_y" value="-12" />
 	  <arg name="init_pose_yaw" value="1.570796" />
       <arg name="robot_name" value="tb7" />
     </include>
@@ -83,7 +83,7 @@
   <group ns="tb8">
     <param name="tf_prefix" value="tb8" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >
-	  <arg name="init_pose_x" value="7" />  
+	  <arg name="init_pose_x" value="13" />  
 	  <arg name="init_pose_y" value="-0.25" />
 	  <arg name="init_pose_yaw" value="3.14159267" />
       <arg name="robot_name" value="tb8" />
@@ -94,7 +94,7 @@
     <param name="tf_prefix" value="tb9" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >       
 	  <arg name="init_pose_x" value="0.25" />  
-	  <arg name="init_pose_y" value="7" />
+	  <arg name="init_pose_y" value="13" />
 	  <arg name="init_pose_yaw" value="-1.570796" />
       <arg name="robot_name" value="tb9" />
     </include>
@@ -103,7 +103,7 @@
   <group ns="tb10">
     <param name="tf_prefix" value="tb10" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >       
-	  <arg name="init_pose_x" value="-7" />  
+	  <arg name="init_pose_x" value="-13" />  
 	  <arg name="init_pose_y" value="0.25" />
 	  <arg name="init_pose_yaw" value="0" />
       <arg name="robot_name" value="tb10" />
@@ -114,9 +114,129 @@
     <param name="tf_prefix" value="tb11" />
     <include file="$(find inter_navi)/launch/one_robot.launch" >      
 	  <arg name="init_pose_x" value="-0.25" />  
-	  <arg name="init_pose_y" value="-7" />
+	  <arg name="init_pose_y" value="-13" />
 	  <arg name="init_pose_yaw" value="1.570796" />
       <arg name="robot_name" value="tb11" />
+    </include>
+  </group>
+<!--
+  <group ns="tb12">
+    <param name="tf_prefix" value="tb12" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >
+	  <arg name="init_pose_x" value="14" />  
+	  <arg name="init_pose_y" value="-0.25" />
+	  <arg name="init_pose_yaw" value="3.14159267" />
+      <arg name="robot_name" value="tb12" />
+    </include>
+  </group>
+
+  <group ns="tb13">
+    <param name="tf_prefix" value="tb13" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="0.25" />  
+	  <arg name="init_pose_y" value="14" />
+	  <arg name="init_pose_yaw" value="-1.570796" />
+      <arg name="robot_name" value="tb13" />
+    </include>
+  </group>
+
+  <group ns="tb14">
+    <param name="tf_prefix" value="tb14" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="-14" />  
+	  <arg name="init_pose_y" value="0.25" />
+	  <arg name="init_pose_yaw" value="0" />
+      <arg name="robot_name" value="tb14" />
+    </include>
+  </group>
+
+  <group ns="tb15">
+    <param name="tf_prefix" value="tb15" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="-0.25" />  
+	  <arg name="init_pose_y" value="-14" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb15" />
+    </include>
+  </group>
+
+  <group ns="tb16">
+    <param name="tf_prefix" value="tb16" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >
+	  <arg name="init_pose_x" value="15" />  
+	  <arg name="init_pose_y" value="-0.25" />
+	  <arg name="init_pose_yaw" value="3.14159267" />
+      <arg name="robot_name" value="tb16" />
+    </include>
+  </group>
+
+  <group ns="tb17">
+    <param name="tf_prefix" value="tb17" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="0.25" />  
+	  <arg name="init_pose_y" value="15" />
+	  <arg name="init_pose_yaw" value="-1.570796" />
+      <arg name="robot_name" value="tb17" />
+    </include>
+  </group>
+
+  <group ns="tb18">
+    <param name="tf_prefix" value="tb18" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="-15" />  
+	  <arg name="init_pose_y" value="0.25" />
+	  <arg name="init_pose_yaw" value="0" />
+      <arg name="robot_name" value="tb18" />
+    </include>
+  </group>
+
+  <group ns="tb19">
+    <param name="tf_prefix" value="tb19" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="-0.25" />  
+	  <arg name="init_pose_y" value="-15" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb19" />
+    </include>
+  </group>
+
+  <group ns="tb20">
+    <param name="tf_prefix" value="tb20" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >
+	  <arg name="init_pose_x" value="16" />  
+	  <arg name="init_pose_y" value="-0.25" />
+	  <arg name="init_pose_yaw" value="3.14159267" />
+      <arg name="robot_name" value="tb20" />
+    </include>
+  </group>
+
+  <group ns="tb21">
+    <param name="tf_prefix" value="tb21" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="0.25" />  
+	  <arg name="init_pose_y" value="16" />
+	  <arg name="init_pose_yaw" value="-1.570796" />
+      <arg name="robot_name" value="tb21" />
+    </include>
+  </group>
+
+  <group ns="tb22">
+    <param name="tf_prefix" value="tb22" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >       
+	  <arg name="init_pose_x" value="-16" />  
+	  <arg name="init_pose_y" value="0.25" />
+	  <arg name="init_pose_yaw" value="0" />
+      <arg name="robot_name" value="tb22" />
+    </include>
+  </group>
+
+  <group ns="tb23">
+    <param name="tf_prefix" value="tb23" />
+    <include file="$(find inter_navi)/launch/one_robot.launch" >      
+	  <arg name="init_pose_x" value="-0.25" />  
+	  <arg name="init_pose_y" value="-16" />
+	  <arg name="init_pose_yaw" value="1.570796" />
+      <arg name="robot_name" value="tb23" />
     </include>
   </group>
 
@@ -200,8 +320,5 @@
       <arg name="robot_name" value="tb3" />
     </include>
   </group>
-
-
-
 
 -->

@@ -17,17 +17,17 @@ class Robot:
 		rospy.init_node(node_name, anonymous=True)
 
 
-		self.r = rospy.Rate(3)
+		self.r = rospy.Rate(10)
 		self.START_TIME = rospy.get_time()
 		self.correctionAngle = pi / 4
 
 		## WARNING, TRAVEL DISTANCE MUST BE GREATER THAN THE ROBOT FURTHEREST FROM THE INTERSECTION
 		## E.G ROBOT WITH CO_ORDINATES (20, 0.25) will not work with TRAVEL DISTANCE 20. AT LEAST ONE INTEGER BIGGER
 		## THAT IS, TRAVEL DISTANCE OF 21 required
-		self.TOTALDISTANCETRAVELLED = 50
+		self.TOTALDISTANCETRAVELLED = 25
 		self.SAFETY_DISTANCE = 1
-		self.FORWARD_SPEED = 0.35
-		self.FORWARD_SPEED_IN_INTERSECTION = 0.35
+		self.FORWARD_SPEED = 0.5
+		self.FORWARD_SPEED_IN_INTERSECTION = 0.1
 		self.MIN_SCAN_ANGLE = -10 * pi/180
 		self.MAX_SCAN_ANGLE = 10 * pi/180
 		self.MIN_ADJ_ANGLE = 0.075
@@ -238,13 +238,10 @@ class Robot:
 	def intersectionLeftTurn(self):
 		sign_x = 1 if self.intersection_x >= 0 else - 1
 		sign_y = 1 if self.intersection_y >= 0 else - 1
-		# x2 distance good for up to speeds of 0.5
 		if abs(self.intersection_x) > abs(self.intersection_y):
-			self.move(sign_x * abs(self.intersection_y), sign_y * 1.5 * abs(self.intersection_x), 4, True)
-			# self.move(sign_x * abs(self.intersection_y), sign_y * 2 * abs(self.intersection_x), 4, True)
+			self.move(sign_x * abs(self.intersection_y), sign_y * 2 * abs(self.intersection_x), 4, True)
 		else:
-			self.move(sign_x * 1.5 * abs(self.intersection_y), sign_y * abs(self.intersection_x), 4, True)
-			# self.move(sign_x * 2 * abs(self.intersection_y), sign_y * abs(self.intersection_x), 4, True)
+			self.move(sign_x * 2 * abs(self.intersection_y), sign_y * abs(self.intersection_x), 4, True)
 
 	#TODO check order of end_intersection and message sernding
 	def go_right(self):
@@ -257,7 +254,7 @@ class Robot:
 		self.inside_central_intersection_area = True
 		self.RELATIVE_POSITION = "In_Intersection"
 		self.move_up("Right")
-		# self.turn_half_completed()
+		self.turn_half_completed()
 		self.RELATIVE_POSITION = "Half_Intersection"
 		self.sendIntersectionArrivalTime()
 		self.intersectionRightTurn()
@@ -284,36 +281,34 @@ class Robot:
 		if (temp_y <= 0 and temp_y >= -0.5):
 			if dir == "Right":
 				self.move(temp_x/5, temp_y, 4, True)
-				self.move(temp_y, 0, 6, True)
 			elif dir == "Left":
-				self.move(temp_x/2, temp_y, 4, True)
+				self.move(temp_x/5, temp_y, 4, True)
 		#East -> West
 		elif (temp_x <= 0.5 and temp_x >= 0):
 			if dir == "Right":
-				self.move(temp_x, temp_y/5, 4, True)
-				self.move(0, -temp_x, 6, True)		
+				self.move(temp_x, temp_y/5, 4, True)			
 			elif dir == "Left":
-				self.move(temp_x, temp_y/2, 4, True)
+				self.move(temp_x, temp_y/5, 4, True)
 		# North -> South
 		elif (temp_y <= 0.5 and temp_y >= 0):
 			if dir == "Right":
 				self.move(temp_x/5, temp_y, 4, True)
-				self.move(temp_y, 0, 6, True)
 			elif dir == "Left":
-				self.move(temp_x/2, temp_y, 4, True)
+				self.move(temp_x/5, temp_y, 4, True)
 		# West -> East
 		else:
 			if dir == "Right":
 				self.move(temp_x, 0.05, 4, True)
-				self.move(0, -temp_x, 6, True)
 			elif dir == "Left":
-				self.move(temp_x, temp_y/2, 4, True)
+				self.move(temp_x, temp_y/5, 4, True)
 
 	def intersectionRightTurn(self):
 		if abs(self.intersection_x) > abs(self.intersection_y):
-			self.move(self.intersection_y, 1.5 * self.intersection_x, 3, True)
+			self.move(self.intersection_y, 2 * self.intersection_x, 3, True) 
+			print("Aim: %f %f" % (self.intersection_y, 2*self.intersection_x))       
 		else:
-			self.move(-1.5 * self.intersection_y, -self.intersection_x, 3, True)
+			self.move(-2 * self.intersection_y, -self.intersection_x, 3, True)
+			print("Aim %f %f" % (-2*self.intersection_y, -self.intersection_x))
 
 	def go_straight(self):
 		self.TURNING_DIRECTION = "Straight"
@@ -343,9 +338,9 @@ class Robot:
 
 	def intersectionStraight(self):
 		if abs(self.intersection_x) < abs(self.intersection_y):
-			self.move(self.intersection_x, -1.5 * self.intersection_y, 2, True)        
+			self.move(self.intersection_x, -1.25 * self.intersection_y, 2, True)        
 		else:
-			self.move(-1.5 *self.intersection_x, self.intersection_y, 2, True)	# Make robot completely clear intersection before reporting it is good
+			self.move(-1.25 *self.intersection_x, self.intersection_y, 2, True)	# Make robot completely clear intersection before reporting it is good
 
 	# TODO - Allow left turns to go when opposing road is active.
 	def wait(self):
@@ -384,19 +379,12 @@ if __name__ == '__main__':
 	try:
 		tb_robot = Robot(sys.argv[1])
 		tb_robot.goToIntersection()
-		# dir_travel = sys.argv[2]
-		# if dir_travel == "Straight":
-		# 	tb_robot.go_straight()
-		# elif dir_travel == "Left":
-		# 	tb_robot.go_left()
-		# elif dir_travel == "Right":
-		# 	tb_robot.go_right()
-		turn = randint(0, 2)
-		if turn == 0:
+		dir_travel = sys.argv[2]
+		if dir_travel == "Straight":
 			tb_robot.go_straight()
-		elif turn == 1:
+		elif dir_travel == "Left":
 			tb_robot.go_left()
-		elif turn == 2:
+		elif dir_travel == "Right":
 			tb_robot.go_right()
 	except rospy.ROSInterruptException:
 		pass

@@ -10,7 +10,7 @@ from std_msgs.msg import String
 class Controller:
     def __init__(self, size):
         rospy.init_node("Intersection_Manager_Node", anonymous=True)
-        self.r = rospy.Rate(10)
+        self.r = rospy.Rate(3)
 
         self.robot_queue_south_north_road = deque()
         self.robot_queue_north_south_road = deque()
@@ -54,36 +54,53 @@ class Controller:
         #     self.occuppied_road[0] = 1
         # elif (incoming_dir == "East" or incoming_dir == "West") and relative_goal == "In_Intersection":
         #     self.occuppied_road[1] = 1
+        if relative_goal == "Half_Intersection":
+        	self.switch_road_occupancy()
 
         # This will hopefully reset the intersection to be free
         if relative_goal == "End_Intersection":
-            if incoming_dir == "North":
+            if incoming_dir == "North" and direction_travel != "Right":
                 self.no_cars_on_sn_road -= 1
                 if self.no_cars_on_sn_road == 0:
                     print("SN road clear now")
                     self.occuppied_road[0] = 0
-            elif incoming_dir == "South":
+            elif incoming_dir == "North" and direction_travel == "Right":
+            	self.occuppied_road[3] = 0
+            elif incoming_dir == "South" and direction_travel != "Right":
                 self.no_cars_on_ns_road -= 1
                 if self.no_cars_on_ns_road == 0:
                     print("NS road clear now")
                     self.occuppied_road[1] = 0
-            elif incoming_dir == "West":
+            elif incoming_dir == "South" and direction_travel == "Right":
+            	self.occuppied_road[2] = 0
+            elif incoming_dir == "West" and direction_travel != "Right":
                 self.no_cars_on_ew_road -= 1
                 if self.no_cars_on_ew_road == 0:
                     print("WE road is clear now")
                     self.occuppied_road[2] = 0
-            elif incoming_dir == "East":
+            elif incoming_dir == "West" and direction_travel == "Right":
+            	self.occuppied_road[0] = 0
+            elif incoming_dir == "East" and direction_travel != "Right":
                 self.no_cars_on_we_road -= 1
                 if self.no_cars_on_we_road == 0:
                     print("EW road is clear now")
                     self.occuppied_road[3] = 0
+            elif incoming_dir == "East" and direction_travel == "Right":
+            	self.occuppied_road[1] = 0
         else:
             pass
+
+    def switch_road_occupancy(self):
+    	# print("Need to fix this")
+    	for i in range(4):
+    		if self.occuppied_road[i] == 3:
+    			self.occuppied_road[i] = 1
 
     def check_intersection_free(self):
         return (self.occuppied_road[0] == 0 and self.occuppied_road[1] == 0 and \
                 self.occuppied_road[2] == 0 and self.occuppied_road[3] == 0)
 
+	#TODO: Account for right turns
     def run(self):
         while True:
             ns_robot_info = None
@@ -92,12 +109,13 @@ class Controller:
             we_robot_info = None
             print("cars SN:%d, NS:%d, EW:%d, WE:%d" % (self.no_cars_on_sn_road, self.no_cars_on_ns_road, self.no_cars_on_ew_road,self.no_cars_on_we_road))
 
+
             try:
-                ns_robot_info = self.robot_queue_north_south_road[0]
+                sn_robot_info = self.robot_queue_south_north_road[0]
             except Exception as e:
                 pass
             try:
-                sn_robot_info = self.robot_queue_south_north_road[0]
+                ns_robot_info = self.robot_queue_north_south_road[0]
             except Exception as e:
                 pass
             try:
@@ -119,77 +137,100 @@ class Controller:
                 self.r.sleep()
                 print(self.occuppied_road)
                 continue
-            # if self.check_intersection_free():
-            # 	print("AM I STUCK HERE?")
-            # 	self.r.sleep()
-            # 	print(self.occuppied_road)
-            # 	continue
 
-            # When robot first enters intersection and can just proceed straight away
+            # When robot first enters intersection and robot is currently occuppied, check if robot can go
             if sn_robot_info is not None and ns_robot_info == None\
                 and ew_robot_info == None and we_robot_info == None:
-                if self.occuppied_road[0] == 1 or self.check_intersection_free():
+                robot_turning_direction = sn_robot_info[3]
+                
+                if robot_turning_direction == "Right" and self.check_intersection_free():
+                	self.occuppied_road[3] = 3
+                elif robot_turning_direction != "Right" and (self.occuppied_road[0] == 1 or self.occuppied_road[1] == 1 or self.check_intersection_free()):
                     self.occuppied_road[0] = 1
                     # self.occuppied_road[1] = 1 # Keep state same dont change it 
                     self.occuppied_road[2] = 0
                     self.occuppied_road[3] = 0
                 else:
-                    print("Wait for EW and WE rd")
+                    # print("Wait for EW and WE rd")
                     print(self.occuppied_road)
                     continue
                 try:
                     self.robot_queue_south_north_road.popleft()
-                    self.no_cars_on_sn_road += 1
+                    if robot_turning_direction == "Right":
+                    	print("Maybe add to we road?")
+                    else:
+                    	self.no_cars_on_sn_road += 1
                     print(self.robot_queue_south_north_road)
                 except IndexError:
                     pass
             elif ns_robot_info is not None and sn_robot_info == None\
                 and ew_robot_info == None and we_robot_info == None:
-                if self.occuppied_road[1] == 1 or self.check_intersection_free():
+                robot_turning_direction = ns_robot_info[3]
+                
+                if robot_turning_direction == "Right" and self.check_intersection_free():
+                	self.occuppied_road[2] = 3
+                elif robot_turning_direction != "Right" and (self.occuppied_road[1] == 1 or self.occuppied_road[0] == 1 or self.check_intersection_free()):
                     # self.occuppied_road[0] = 1
                     self.occuppied_road[1] = 1
                     self.occuppied_road[2] = 0
                     self.occuppied_road[3] = 0
                 else:
-                    print("Wait for EW and WE rd")
+                    # print("Wait for EW and WE rd")
                     print(self.occuppied_road)
                     continue
                 try:
                     self.robot_queue_north_south_road.popleft()
-                    self.no_cars_on_ns_road += 1
+                    if robot_turning_direction == "Right":
+                    	print("Maybe add to EW road?")
+                    else:
+                    	self.no_cars_on_ns_road += 1
                 except IndexError:
                     pass
             elif ew_robot_info is not None and ns_robot_info == None\
                 and sn_robot_info == None and we_robot_info == None:
-                if self.occuppied_road[2] == 1 or self.check_intersection_free():
+                robot_turning_direction = ew_robot_info[3]
+                if robot_turning_direction == "Right" and self.check_intersection_free():
+                	self.occuppied_road[0] = 3
+                elif robot_turning_direction != "Right" and (self.occuppied_road[2] == 1 or self.occuppied_road[3] == 1 or self.check_intersection_free()):
+                	# print("############THIS SHOULDMT BE CALLED")
                     self.occuppied_road[0] = 0
                     self.occuppied_road[1] = 0
                     self.occuppied_road[2] = 1
+                    print("THIS SHOULD NOT BE CALLED")
                     # self.occuppied_road[3] = 1
                 else:
-                    print("Wait for NS and SN rd")
+                    # print("Wait for NS and SN rd")
                     print(self.occuppied_road)
                     continue
                 try:
                     self.robot_queue_east_west_road.popleft()
-                    self.no_cars_on_ew_road += 1
+                    if robot_turning_direction == "Right":
+                    	print("Maybe add to SN road?")
+                    else:
+                    	self.no_cars_on_ew_road += 1
                     print(self.robot_queue_east_west_road)
                 except IndexError:
                     pass
             elif we_robot_info is not None and ns_robot_info == None\
                 and sn_robot_info == None and ew_robot_info == None:
-                if self.occuppied_road[3] == 1 or self.check_intersection_free():
+                robot_turning_direction = we_robot_info[3]
+                if robot_turning_direction == "Right" and self.check_intersection_free():
+                	self.occuppied_road[1] = 3
+                elif robot_turning_direction != "Right" and (self.occuppied_road[3] == 1 or self.occuppied_road[2] == 1 or self.check_intersection_free()):
                     self.occuppied_road[0] = 0
                     self.occuppied_road[1] = 0
                     # self.occuppied_road[2] = 1
                     self.occuppied_road[3] = 1
                 else:
-                    print("Wait for NS and SN rd")
+                    # print("Wait for NS and SN rd")
                     print(self.occuppied_road)
                     continue
                 try:
                     self.robot_queue_west_east_road.popleft()
-                    self.no_cars_on_we_road += 1
+                    if robot_turning_direction == "Right":
+                    	print("Maybe add to NS road?")
+                    else:
+                    	self.no_cars_on_we_road += 1
                     print(self.robot_queue_west_east_road)
                 except Exception as e:
                     pass                                               
@@ -197,7 +238,7 @@ class Controller:
             #TODO, need to check timestamp when [0, 0]
                 # if self.occuppied_road[0] == 0 and self.occuppied_road[1] == 0 and\
                 #     self.occuppied_road[2] == 0 and self.occuppied_road[3] == 0:
-                print("DID I GET HERE?")
+                # print("DID I GET HERE?")
                 if self.check_intersection_free():
                     try:
                     	south_robot, north_robot, east_robot, west_robot = sys.maxint, sys.maxint, sys.maxint, sys.maxint
@@ -226,7 +267,6 @@ class Controller:
                         	print(e.message, e.args)
                         	print("West none?")
                         	pass
-                        print("When do I get here")
                         robot_snew_ts = [sys.maxint, south_robot, north_robot, east_robot, west_robot]
                         print(robot_snew_ts)
                         first_ts = robot_snew_ts.index(min(robot_snew_ts))
@@ -238,36 +278,52 @@ class Controller:
                         elif first_ts == 1:
                             try:
                                 self.robot_queue_south_north_road.popleft()
-                                self.no_cars_on_sn_road += 1
-                                self.occuppied_road[0] = 1
+                                if sn_robot_info[3] == "Right":
+                                	print("INcrement we road?")
+                                	self.occuppied_road[3] = 3
+                            	else:
+	                                self.no_cars_on_sn_road += 1
+	                                self.occuppied_road[0] = 1
                             except IndexError:
                                 pass
                         elif first_ts == 2:
                             try:
                                 self.robot_queue_north_south_road.popleft()
-                                self.no_cars_on_ns_road += 1
-                                self.occuppied_road[1] = 1
+                                if ns_robot_info[3] == "Right":
+                                	print("Incrememnt ew road?")
+                                	self.occuppied_road[2] = 3
+                            	else:
+	                                self.no_cars_on_ns_road += 1
+	                                self.occuppied_road[1] = 1
                             except IndexError:
                                 pass
                         elif first_ts == 3:
                             try:
                                 self.robot_queue_east_west_road.popleft()
-                                self.no_cars_on_ew_road += 1
-                                self.occuppied_road[2] = 1
+                                if ew_robot_info[3] == "Right":
+                                	print("Incrememnt sn road?")
+                                	self.occuppied_road[0] = 3
+                            	else:
+	                                self.no_cars_on_ew_road += 1
+	                                self.occuppied_road[2] = 1
                             except IndexError:
                                 pass
                         else:
                             try:
                                 self.robot_queue_west_east_road.popleft()
-                                self.no_cars_on_we_road += 1
-                                self.occuppied_road[3] = 1
+                                if we_robot_info[3] == "Right":
+                                	print("Increment ns road?")
+                                	self.occuppied_road[1] = 3
+                            	else:
+	                                self.no_cars_on_we_road += 1
+	                                self.occuppied_road[3] = 1
                             except IndexError:
                                 pass
                     except Exception as e:
                         # print(e.message, e.args)
                         pass
-                #TODO Can i combine [0] and [1] and [2] and [3] or are they required to be
-                # separate once we introduce right turns?
+                
+
                 if self.occuppied_road[0] == 1:
                     try:
                         self.robot_queue_south_north_road.popleft()
@@ -335,7 +391,7 @@ class Controller:
                 self.robot_talker[int(we_robot_info[0])].publish(road_status)
             except Exception as e:
                 pass
-            print("Sent message")
+            # print("Sent message")
             self.r.sleep()
 
 

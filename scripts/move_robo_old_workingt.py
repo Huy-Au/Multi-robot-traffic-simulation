@@ -19,9 +19,6 @@ class Robot:
 
 		self.r = rospy.Rate(10)
 		self.START_TIME = rospy.get_time()
-		"""
-		self.correctionAngle = 17 * pi / 9
-		"""
 		self.correctionAngle = pi / 4
 
 		## WARNING, TRAVEL DISTANCE MUST BE GREATER THAN THE ROBOT FURTHEREST FROM THE INTERSECTION
@@ -30,10 +27,10 @@ class Robot:
 		self.TOTALDISTANCETRAVELLED = 25
 		self.SAFETY_DISTANCE = 1
 		self.FORWARD_SPEED = 0.5
-		self.FORWARD_SPEED_IN_INTERSECTION = 0.22
+		self.FORWARD_SPEED_IN_INTERSECTION = 0.5
 		self.MIN_SCAN_ANGLE = -10 * pi/180
 		self.MAX_SCAN_ANGLE = 10 * pi/180
-		self.MIN_ADJ_ANGLE = 0.1
+		self.MIN_ADJ_ANGLE = 0.075
 
 
 		self.INCOMING_DIRECTION = ""
@@ -49,6 +46,11 @@ class Robot:
 		self.SAFE_EAST_WEST = False
 		self.SAFE_WEST_EAST = False
 
+		self.SAFE_SN_EAST = False
+		self.SAFE_NS_WEST = False
+		self.SAFE_EW_NORTH = False
+		self.SAFE_WE_SOUTH = False
+
 
 		self.robot_id = robot_id
 		self.tf_listener = tf.TransformListener()
@@ -58,6 +60,7 @@ class Robot:
 		self.robot_listener = rospy.Subscriber("tb" + str(robot_id) + "_talker", String, self.listen_callback)
 		self.laser_scan_sub = rospy.Subscriber("/tb" + str(robot_id) + "/scan", LaserScan, self.scan_callback)
 
+		# Intersection stopping point
 		self.southnorth = [0.6, -0.25]
 		self.eastwest = [0.25, 0.6]
 		self.northsouth = [-0.6, 0.25]
@@ -89,35 +92,12 @@ class Robot:
 		self.SAFE_NORTH_SOUTH = True if safe_roads[1] == "1" else False
 		self.SAFE_EAST_WEST = True if safe_roads[2] == "1" else False
 		self.SAFE_WEST_EAST = True if safe_roads[3] == "1" else False
-		# TODO Implement right turn policy, this is only to test if right turn is possible
-		""" Delete this asap """
-		# if self.INCOMING_DIRECTION == "North" or self.INCOMING_DIRECTION == "South":
-		# 	if self.TURNING_DIRECTION == "Right":
-		# 		if msg.data == "1 0":
-		# 			self.SAFE_NORTH_SOUTH = True
-		# 			self.SAFE_EAST_WEST = False
-		# elif self.INCOMING_DIRECTION == "East" or self.INCOMING_DIRECTION == "West":
-  #   			if self.TURNING_DIRECTION == "Right":
-		# 		if msg.data == "0 1":
-		# 			self.SAFE_NORTH_SOUTH = False
-		# 			self.SAFE_EAST_WEST = True
-		# else:
-		# 	#TODO Think about edge cases?
-		# 	pass
 
-		# if self.INCOMING_DIRECTION == "North" or self.INCOMING_DIRECTION == "South":
-		# 	if self.TURNING_DIRECTION == "Straight" or self.TURNING_DIRECTION == "Left":
-		# 		if msg.data == "1 0":
-		# 			self.SAFE_NORTH_SOUTH = True
-		# 			self.SAFE_EAST_WEST = False
-		# elif self.INCOMING_DIRECTION == "East" or self.INCOMING_DIRECTION == "West":
-  #   			if self.TURNING_DIRECTION == "Straight" or self.TURNING_DIRECTION == "Left":
-		# 		if msg.data == "0 1":
-		# 			self.SAFE_NORTH_SOUTH = False
-		# 			self.SAFE_EAST_WEST = True
-		# else:
-		# 	#TODO Think about edge cases?
-		# 	pass
+
+		self.SAFE_SN_EAST = True if safe_roads[3] == "3" else False
+		self.SAFE_NS_WEST = True if safe_roads[2] == "3" else False
+		self.SAFE_EW_NORTH = True if safe_roads[0] == "3" else False
+		self.SAFE_WE_SOUTH = True if safe_roads[1] == "3" else False
 	
 	def scan_callback(self, msg):
 		minIndex = int(ceil((self.MIN_SCAN_ANGLE - msg.angle_min) / msg.angle_increment))
@@ -141,15 +121,6 @@ class Robot:
 				(roll, pitch, yaw) = euler_from_quaternion(rot)
 				# Converts all yaw to positive values in range 0-2pi
 				yaw = fmod((2 * pi) + yaw, 2 * pi)
-				# TODO: Robots moving in the north to south direction may have yaw that 
-				# switches between 2pi and 0 instaneously. Force values between 340-360 to be 0 degrees
-				# Can this be fixed by constantly calculating two values and working out which requires least
-				# amount of change. E.g goal is 0 degrees but because we are slightly to the right of the goal
-				# goal will be 6.1.  
-				"""
-				if yaw > self.correctionAngle and yaw <= 2 * pi:
-					yaw = 0
-				"""
 				return (trans, yaw)
 			except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
 				continue
@@ -246,6 +217,7 @@ class Robot:
 
 		self.inside_central_intersection_area = True
 		self.RELATIVE_POSITION = "In_Intersection"
+		self.move_up("Left")
 		self.intersectionLeftTurn()
 		self.RELATIVE_POSITION = "End_Intersection"
 		self.sendIntersectionArrivalTime()
@@ -267,9 +239,9 @@ class Robot:
 		sign_x = 1 if self.intersection_x >= 0 else - 1
 		sign_y = 1 if self.intersection_y >= 0 else - 1
 		if abs(self.intersection_x) > abs(self.intersection_y):
-			self.move(sign_x * abs(self.intersection_y), sign_y * 2 * abs(self.intersection_x), -2, True)
+			self.move(sign_x * abs(self.intersection_y), sign_y * 2 * abs(self.intersection_x), 4, True)
 		else:
-			self.move(sign_x * 2 * abs(self.intersection_y), sign_y * abs(self.intersection_x), -2, True)
+			self.move(sign_x * 2 * abs(self.intersection_y), sign_y * abs(self.intersection_x), 4, True)
 
 	#TODO check order of end_intersection and message sernding
 	def go_right(self):
@@ -281,7 +253,7 @@ class Robot:
 
 		self.inside_central_intersection_area = True
 		self.RELATIVE_POSITION = "In_Intersection"
-		self.move_up()
+		self.move_up("Right")
 		self.intersectionRightTurn()
 		self.RELATIVE_POSITION = "End_Intersection"
 		self.sendIntersectionArrivalTime() #IS this correct?
@@ -289,37 +261,51 @@ class Robot:
 
 		if (abs(self.init_x) > abs(self.init_y)):
 			if self.init_x < 0:
-				self.move(self.init_y, -(self.TOTALDISTANCETRAVELLED + self.init_x), 4, False)
+				self.move(self.init_y, -(self.TOTALDISTANCETRAVELLED + self.init_x), 8, False)
 			else:
-				self.move(self.init_y, self.TOTALDISTANCETRAVELLED - self.init_x, 4, False)	
+				self.move(self.init_y, self.TOTALDISTANCETRAVELLED - self.init_x, 8, False)	
 		else:
 			if self.init_y < 0:
-				self.move(self.TOTALDISTANCETRAVELLED + self.init_y, -self.init_x, 4, False)
+				self.move(self.TOTALDISTANCETRAVELLED + self.init_y, -self.init_x, 8, False)
 			else:
-				self.move(-self.TOTALDISTANCETRAVELLED + self.init_y, -self.init_x, 4, False)
+				self.move(-self.TOTALDISTANCETRAVELLED + self.init_y, -self.init_x, 8, False)
 
 
-	def move_up(self):
+	def move_up(self, dir):
 		(trans, rot) = self.get_robot_position()
 		temp_x, temp_y = trans[0], trans[1]
 		#South -> North
 		if (temp_y <= 0 and temp_y >= -0.5):
-			self.move(0, temp_y, 4, True)
+			if dir == "Right":
+				self.move(temp_x/5, temp_y, 4, True)
+			elif dir == "Left":
+				self.move(temp_x/5, temp_y, 4, True)
 		#East -> West
 		elif (temp_x <= 0.5 and temp_x >= 0):
-			self.move(temp_x, 0, 4, True)
+			if dir == "Right":
+				self.move(temp_x, temp_y/5, 4, True)			
+			elif dir == "Left":
+				self.move(temp_x, temp_y/5, 4, True)
 		# North -> South
 		elif (temp_y <= 0.5 and temp_y >= 0):
-			self.move(0, temp_y, 4, True)
+			if dir == "Right":
+				self.move(temp_x/5, temp_y, 4, True)
+			elif dir == "Left":
+				self.move(temp_x/5, temp_y, 4, True)
 		# West -> East
 		else:
-			self.move(temp_x, 0, 4, True)
+			if dir == "Right":
+				self.move(temp_x, 0.05, 4, True)
+			elif dir == "Left":
+				self.move(temp_x, temp_y/5, 4, True)
 
 	def intersectionRightTurn(self):
 		if abs(self.intersection_x) > abs(self.intersection_y):
-			self.move(self.intersection_y, 2 * self.intersection_x, -3, True)        
+			self.move(self.intersection_y, 2 * self.intersection_x, 3, True) 
+			print("Aim: %f %f" % (self.intersection_y, 2*self.intersection_x))       
 		else:
-			self.move(-2 * self.intersection_y, -self.intersection_x, -3, True)
+			self.move(-2 * self.intersection_y, -self.intersection_x, 3, True)
+			print("Aim %f %f" % (-2*self.intersection_y, -self.intersection_x))
 
 	def go_straight(self):
 		self.TURNING_DIRECTION = "Straight"
@@ -353,36 +339,40 @@ class Robot:
 		else:
 			self.move(-1.25 *self.intersection_x, self.intersection_y, 2, True)	# Make robot completely clear intersection before reporting it is good
 
-	# TODO - when opposing road is active, so should the corresponding opposite road
+	# TODO - Allow left turns to go when opposing road is active.
 	def wait(self):
-		# if self.INCOMING_DIRECTION == "North":
-		# 	while not self.SAFE_NORTH_SOUTH or not self.SAFE_SOUTH_NORTH:
-		# 		self.r.sleep()
-		# if self.INCOMING_DIRECTION == "South":
-		# 	while not self.SAFE_SOUTH_NORTH or not not self.SAFE_NORTH_SOUTH:
-		# 		self.r.sleep()
-		# if self.INCOMING_DIRECTION == "East":
-		# 	while not self.SAFE_EAST_WEST or not self.SAFE_WEST_EAST:
-		# 		self.r.sleep()
-		# if self.INCOMING_DIRECTION == "West":
-		# 	while not self.SAFE_WEST_EAST or not self.SAFE_EAST_WEST:
-		# 		self.r.sleep()
-		if self.INCOMING_DIRECTION == "North":
-			while not self.SAFE_SOUTH_NORTH:
-				print("WAITING to got %s" % self.INCOMING_DIRECTION)
-				self.r.sleep()
-		if self.INCOMING_DIRECTION == "South":
-			while not self.SAFE_NORTH_SOUTH:
-				print("WAITING to got %s" % self.INCOMING_DIRECTION)
-				self.r.sleep()
-		if self.INCOMING_DIRECTION == "West":
-			while not self.SAFE_EAST_WEST:
-				print("WAITING to got %s" % self.INCOMING_DIRECTION)
-				self.r.sleep()
-		if self.INCOMING_DIRECTION == "East":
-			while not self.SAFE_WEST_EAST:
-				print("WAITING to got %s" % self.INCOMING_DIRECTION)
-				self.r.sleep()
+		if self.TURNING_DIRECTION != "Right":
+			if self.INCOMING_DIRECTION == "North":
+				while not self.SAFE_SOUTH_NORTH:
+					print("WAITING to go %s" % self.INCOMING_DIRECTION)
+					self.r.sleep()
+			if self.INCOMING_DIRECTION == "South":
+				while not self.SAFE_NORTH_SOUTH:
+					print("WAITING to go %s" % self.INCOMING_DIRECTION)
+					self.r.sleep()
+			if self.INCOMING_DIRECTION == "West":
+				while not self.SAFE_EAST_WEST:
+					print("WAITING to go %s" % self.INCOMING_DIRECTION)
+					self.r.sleep()
+			if self.INCOMING_DIRECTION == "East":
+				while not self.SAFE_WEST_EAST:
+					print("WAITING to go %s" % self.INCOMING_DIRECTION)
+					self.r.sleep()
+		if self.TURNING_DIRECTION == "Right":
+			if self.INCOMING_DIRECTION == "North":
+				while not self.SAFE_SN_EAST:
+					self.r.sleep()
+			if self.INCOMING_DIRECTION == "South":
+				while not self.SAFE_NS_WEST:
+					self.r.sleep()
+			# if self.INCOMING_DIRECTION == "West":
+			# 	while not self.SAFE_EAST_WEST and self.SAFE_WEST_EAST:
+			# 		print("WAITING to go %s" % self.INCOMING_DIRECTION)
+			# 		self.r.sleep()
+			# if self.INCOMING_DIRECTION == "East":
+			# 	while not self.SAFE_WEST_EAST and self.SAFE_EAST_WEST:
+			# 		print("WAITING to go %s" % self.INCOMING_DIRECTION)
+			# 		self.r.sleep()
 
 	
 
@@ -392,9 +382,15 @@ if __name__ == '__main__':
 		tb_robot.goToIntersection()
 		turn = randint(0, 1)
 		# tb_robot.go_straight() if turn == 1 else tb_robot.go_left()
-		# tb_robot.go_straight()
+		#tb_robot.go_straight()
 		# tb_robot.go_left()
-		tb_robot.go_right()
+		# tb_robot.go_right()
+		if turn == 0:
+			tb_robot.go_straight()
+		elif turn == 1:
+			tb_robot.go_left()
+		elif turn == 2:
+			tb_robot.go_right()
 	except rospy.ROSInterruptException:
 		pass
 
